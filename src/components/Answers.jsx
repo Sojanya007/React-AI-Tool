@@ -43,11 +43,11 @@ const Answer = ({ ans, totalResult, index, type }) => {
     return (
         <>
             {
-                index == 0 && totalResult > 1 ? <span className="pt-2 text-xl block dark:text-white text-zinc-800">
+                index == 0 && totalResult > 1 ? <span className="pt-2 text-lg sm:text-xl block dark:text-white text-zinc-800">
                     {answer}
                 </span>
-                    : heading ? <span className="pt-2 text-lg block dark:text-white text-zinc-800">{answer}</span>
-                        : <span className={type == 'q' ? 'pl-1' : 'pl-5'}>
+                    : heading ? <span className="pt-2 text-base sm:text-lg block dark:text-white text-zinc-800">{answer}</span>
+                        : <span className={type == 'q' ? 'pl-1' : 'pl-2 sm:pl-5'}>
                             <ReactMarkdown components={renderer}>{answer}</ReactMarkdown>
                         </span>
             }

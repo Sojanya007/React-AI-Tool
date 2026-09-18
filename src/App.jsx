@@ -156,7 +156,7 @@ function App() {
 
   return (
     <div className={darkMode=='dark'?'dark':'light'}>
-    <div className='grid grid-cols-5 h-screen text-center'>
+    <div className='grid grid-cols-1 md:grid-cols-5 h-screen text-center'>
      
      <select onChange={(event)=>setDarkMode(event.target.value)} className='fixed bottom-0 p-3 m-1 '>
        <option value="dark">Dark</option>
@@ -165,8 +165,8 @@ function App() {
 
     <RecentSearch recentHistory={recentHistory} setRecentHistory={setRecentHistory} setSelectedHistory={setSelectedHistory}/>
 
-      <div className='col-span-4 p-9'>
-        <h1 className='text-4xl pb-2 bg-clip-text text-transparent bg-linear-to-r from-red-700 to-violet-700 '>
+      <div className='col-span-1 md:col-span-4 p-4 sm:p-6 md:p-9 min-w-0'>
+        <h1 className='text-2xl sm:text-3xl md:text-4xl pb-2 bg-clip-text text-transparent bg-linear-to-r from-red-700 to-violet-700 '>
         Hello User, Ask me Anything</h1>
         {
           loader ?
@@ -179,7 +179,7 @@ function App() {
             </div> : null
         }
 
-        <div ref={scrollToAns} className='container h-115 overflow-y-auto [&::-webkit-scrollbar]:hidden mt-7'>
+        <div ref={scrollToAns} className='w-full h-[calc(100vh-190px)] overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden mt-5'>
           <div className='dark:text-zinc-300 text-zinc-800 mt-8'>
             <ul>
               {
@@ -190,7 +190,7 @@ function App() {
             </ul>
           </div>
         </div>
-        <div className='dark:bg-zinc-800 bg-red-100 w-1/2 p-1 pr-5 dark:text-white text-zinc-800 m-auto rounded-4xl border border-zinc-700 flex h-16'>
+        <div className='dark:bg-zinc-800 bg-red-100 w-full sm:w-4/5 md:w-3/4 lg:w-1/2 p-1 pr-3 dark:text-white text-zinc-800 m-auto rounded-4xl border border-zinc-700 flex h-14 sm:h-16'>
           <input type="text" value={question}
             onKeyDown={isEnter}
             onChange={(event) => setQuestion(event.target.value)} className='w-full h-full p-3 outline-none' placeholder='Ask me anything' />
