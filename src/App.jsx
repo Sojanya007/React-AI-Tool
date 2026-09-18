@@ -3,6 +3,7 @@ import './App.css'
 import { URL } from './constants'
 import RecentSearch from './components/RecentSearch'
 import QuestionAnswer from './components/QuestionAnswer'
+ 
 
 function App() {
   const [question, setQuestion] = useState('')
@@ -58,28 +59,69 @@ function App() {
     }
 
     setLoader(true)
-
+    
+    try{
     let response = await fetch(URL, {
       method: "POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
       body: JSON.stringify(payload)
     })
 
-    response = await response.json()
+    let data  = await response.json()
 
-    let dataString = response.candidates[0].content.parts[0].text
+    console.log("Full Gemini Response:",JSON.stringify(data, null, 2));
+    
+
+    if(!response.ok)
+    {
+      console.log("Gemini API Error:",data);
+      
+      alert(
+        data?.error?.message ||
+        "Gemini API is currently unavailable. Please try again."
+      )
+      return
+    }
+
+    if(!data?.candidates?.[0]?.content?.parts?.[0]?.text)
+    {
+      console.log("Unexpected Gemini response:", data);
+      alert("Gemini returned an unexpected response.")
+      return
+    }
+
+    let dataString = data.candidates[0].content.parts[0].text
+
     dataString = dataString.split("* ")
     dataString = dataString.map((item) => item.trim())
     //conso[le.log(dataString);
     setResult([...result,
-    { type: 'q', text: question ? question : selectedHistory },
-    { type: 'a', text: dataString }])
+    { type: 'q', 
+      text: question ? question : selectedHistory 
+    },
+    { type: 'a', text: 
+      dataString 
+    }
+  ])
     setQuestion('')
 
     setTimeout(() => {
-      scrollToAns.current.scrollTop = scrollToAns.current.scrollHeight
+      if(scrollToAns.current)
+      {
+       scrollToAns.current.scrollTop = scrollToAns.current.scrollHeight
+      }
+      
     }, 500);
-
+  }
+  catch(error){
+    console.log("Fetch Error:",error);
+    alert("Something went wrong while connecting to Gemini.")
+  }finally{
     setLoader(false)
+  }
+  
 
   }
 
@@ -87,8 +129,8 @@ function App() {
 
 
 
-  const isEnter = () => {
-    if (event.key == 'Enter') {
+  const isEnter = (event) => {
+    if (event.key === 'Enter') {
       askQuestion()
     }
   }
