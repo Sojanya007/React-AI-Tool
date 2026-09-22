@@ -20,7 +20,8 @@ function App() {
   const scrollToAns = useRef()
   const [loader, setLoader] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [preview, setPreview] = useState(null)
 
   const wait = (ms) => {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -70,7 +71,21 @@ function App() {
     }
   }
 
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
 
+      reader.readAsDataURL(file)
+
+      reader.onload = () => {
+        resolve(reader.result.split(',')[1])
+      }
+
+      reader.onerror = (error) => {
+        reject(error)
+      }
+    })
+  }
 
   const askQuestion = async () => {
 
@@ -97,14 +112,27 @@ function App() {
 
     const payloadData = question ? question : selectedHistory
 
+    let parts = [
+      {
+        text: payloadData
+      }
+    ]
+
+    if (selectedFile) {
+      const base64Data = await fileToBase64(selectedFile)
+
+      parts.push({
+        inline_data: {
+          mime_type: selectedFile.type,
+          data: base64Data
+        }
+      })
+    }
+
     const payload = {
-      "contents": [
+      contents: [
         {
-          "parts": [
-            {
-              "text": payloadData
-            }
-          ]
+          parts: parts
         }
       ]
     }
@@ -144,6 +172,8 @@ function App() {
       ])
 
       setQuestion('')
+      setSelectedFile(null)
+      setPreview(null)
 
       setTimeout(() => {
         if (scrollToAns.current) {
@@ -237,11 +267,77 @@ function App() {
               </ul>
             </div>
           </div>
-          <div className='fixed bottom-13 left-3 right-3 z-30 dark:bg-zinc-800 bg-red-100 p-1 pr-3 dark:text-white text-zinc-800 rounded-4xl border border-zinc-700 flex h-14 sm:h-16 md:static md:w-3/5 md:max-w-150 md:mx-auto md:mt-4'>
-            <input type="text" value={question}
-              onKeyDown={isEnter}
-              onChange={(event) => setQuestion(event.target.value)} className='w-full h-full p-3 outline-none' placeholder='Ask me anything' />
-            <button onClick={askQuestion}>Ask</button>
+
+
+          <div className='fixed bottom-13 left-3 right-3 z-30 md:static md:w-3/5 md:max-w-150 md:mx-auto md:mt-4'>
+
+            {/* Selected image preview */}
+            {selectedFile && preview && (
+              <div className='mb-2 p-2 rounded-xl border border-zinc-700 bg-white dark:bg-zinc-800 w-fit'>
+
+                <div className='relative'>
+
+                  <img
+                    src={preview}
+                    alt='Selected'
+                    className='w-20 h-20 object-cover rounded-lg'
+                  />
+
+                  <button
+                    onClick={() => {
+                      setSelectedFile(null)
+                      setPreview(null)
+                    }}
+                    className='absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white text-sm'
+                  >
+                    ×
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* Ask box */}
+            <div className='dark:bg-zinc-800 bg-red-100 p-1 pr-3 dark:text-white text-zinc-800 rounded-4xl border border-zinc-700 flex h-14 sm:h-16'>
+
+              <input
+                type='file'
+                hidden
+                id='fileInput'
+                accept='image/*'
+                onChange={(event) => {
+                  const file = event.target.files[0]
+
+                  if (file) {
+                    setSelectedFile(file)
+                    setPreview(window.URL.createObjectURL(file))
+                  }
+                }}
+              />
+
+              <label
+                htmlFor='fileInput'
+                className='flex items-center justify-center px-3 text-2xl cursor-pointer'
+              >
+                +
+              </label>
+
+              <input
+                type="text"
+                value={question}
+                onKeyDown={isEnter}
+                onChange={(event) => setQuestion(event.target.value)}
+                className='w-full h-full p-3 outline-none'
+                placeholder='Ask me anything'
+              />
+
+              <button onClick={askQuestion}>
+                Ask
+              </button>
+
+            </div>
+
           </div>
         </div>
       </div>
